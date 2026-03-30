@@ -1,0 +1,17 @@
+{
+    "name": "jesuspraha/redque-api-client",
+    "description": "API client for Redque (Alice) document processing",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "JesusPraha\\RedqueApiClient\\": "src/"
+        }
+    },
+    "require": {
+        "php": ">=8.0",
+        "symfony/http-client": "^5.4 || ^6.0 || ^7.0",
+        "symfony/mime": "^5.4 || ^6.0 || ^7.0",
+        "psr/log": "^1.0 || ^2.0 || ^3.0"
+    }
+}
