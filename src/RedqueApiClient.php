@@ -2,7 +2,6 @@
 
 namespace JesusPraha\RedqueApiClient;
 
-use JesusPraha\RedqueApiClient\Exception\RedqueApiClientException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Component\Mime\Part\DataPart;
