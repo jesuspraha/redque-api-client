@@ -74,10 +74,10 @@ class RedqueApiClient
         return $this->token;
     }
 
-    public function getAccountingUnits(): array
+    public function getAccountingUnits(string $unitId): array
     {
         try {
-            $this->logger->debug('Redque API: Fetching accounting units');
+            $this->logger->debug('Redque API: Fetching accounting units for ID ' . $unitId);
             $response = $this->httpClient->request('POST', self::BASE_URL . '/accounting-unit/list', [
                 'headers' => [
                     'Authorization' => 'Bearer ' . $this->getToken(),
@@ -85,8 +85,7 @@ class RedqueApiClient
                 'json' => [
                     'filter' => [
                         'customerId' => [
-                            // You might want to pass this as a parameter in the future, if needed
-                            'values' => ["25609319"]
+                            'values' => [$unitId]
                         ]
                     ]
                 ]
@@ -110,11 +109,44 @@ class RedqueApiClient
 
     public function getDocumentTypes(): array
     {
-        return [
-            ['code' => 'ReceivedInvoice', 'name' => 'Přijatá faktura'],
-            ['code' => 'IssuedInvoice', 'name' => 'Vydaná faktura'],
-            ['code' => 'Receipt', 'name' => 'Účtenka'],
-        ];
+        try {
+            $this->logger->debug('Redque API: Fetching document types');
+            $response = $this->httpClient->request('GET', self::BASE_URL . '/document-types/active', [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $this->getToken(),
+                ],
+                'query' => [
+                    'culture' => 'cs-CZ'
+                ]
+            ]);
+
+            $statusCode = $response->getStatusCode();
+            if ($statusCode === 200) {
+                $data = $response->toArray();
+                $this->logger->info('Redque API: Successfully fetched document types');
+                
+                // Map documentType to code for compatibility
+                return array_map(function($item) {
+                    return [
+                        'code' => $item['documentType'] ?? null,
+                        'name' => $item['name'] ?? null,
+                    ];
+                }, $data);
+            } else {
+                $this->logger->error('Redque API: Fetch document types failed with status ' . $statusCode . '. Response: ' . $response->getContent(false));
+                // Fallback to basic types if API fails
+                return [
+                    ['code' => 'czech_invoice', 'name' => 'Česká faktura'],
+                    ['code' => 'receipt', 'name' => 'Účtenka'],
+                ];
+            }
+        } catch (\Exception $e) {
+            $this->logger->error('Redque API: Exception during fetch document types: ' . $e->getMessage());
+            return [
+                ['code' => 'czech_invoice', 'name' => 'Česká faktura'],
+                ['code' => 'receipt', 'name' => 'Účtenka'],
+            ];
+        }
     }
 
     /**
