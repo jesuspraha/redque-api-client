@@ -128,8 +128,8 @@ class RedqueApiClient
                 // Map documentType to code for compatibility
                 return array_map(function($item) {
                     return [
-                        'code' => $item['documentType'] ?? null,
-                        'name' => $item['name'] ?? null,
+                        'code' => $item['id'] ?? null,
+                        'name' => $item['label'] ?? null,
                     ];
                 }, $data);
             } else {
